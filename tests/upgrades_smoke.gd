@@ -52,15 +52,15 @@ func enemy(world: Node3D, at: Vector3) -> CharacterBody3D:
 func run() -> void:
 	var world = game()
 	await frames(185)
-	check(get_nodes_in_group("enemies").size() == 3, "Three seconds creates exactly three enemies total")
+	check(get_nodes_in_group("enemies").size() == 15, "Three seconds creates fifteen enemies across all gates")
 	for gate in world.get_node("Spawners").get_children():
-		check(gate.spawned == (1 if gate.get_index() < 3 else 0), "Round-robin visits the first three of five gates")
-	check(not paused and not world.get_node("UpgradeMenu").active, "No upgrade before fifty kills")
-	world.kills = 49
+		check(gate.spawned == 3, "All five gates spawn simultaneously each second")
+	check(not paused and not world.get_node("UpgradeMenu").active, "No upgrade before twenty-five kills")
+	world.kills = 24
 	get_nodes_in_group("enemies")[0].take_damage(100)
 	await frames(3)
 	var menu = world.get_node("UpgradeMenu")
-	check(paused and menu.active and world.kills == 50, "Fiftieth real enemy death pauses and opens choices")
+	check(paused and menu.active and world.kills == 25, "Twenty-fifth real enemy death pauses and opens choices")
 	check(menu.offers.size() == 3 and menu.offers[0].id != menu.offers[1].id and menu.offers[1].id != menu.offers[2].id and menu.offers[0].id != menu.offers[2].id, "Three distinct upgrades offered")
 	var count := get_nodes_in_group("enemies").size()
 	var time: float = world.elapsed
@@ -76,28 +76,31 @@ func run() -> void:
 	button(JOY_BUTTON_A, false)
 	check(not paused and not menu.active and world.upgrades_chosen == 1 and world.upgrade_levels.get(selected, 0) == 1, "Xbox D-pad and A apply one choice and resume")
 	menu.choose(0)
-	check(world.upgrades_chosen == 1 and world.next_upgrade_kills == 100, "Duplicate confirm does not grant an extra upgrade")
+	check(world.upgrades_chosen == 1 and world.next_upgrade_kills == 50, "Duplicate confirm does not grant an extra upgrade")
 	check(is_equal_approx(world.get_node("SpawnTimer").wait_time, 0.95) and world.get_node("SpawnTimer").time_left <= timer, "First upgrade reduces delay to 0.95 without postponing pending spawn")
 	var spawned_before := get_nodes_in_group("enemies").size()
 	await frames(120)
 	check(get_nodes_in_group("enemies").size() >= spawned_before + 2, "Reduced timer continues spawning enemies")
 	world.get_node("SpawnTimer").stop()
 	clear_combat(world)
-	for milestone in [100, 150, 200, 250]:
+	var test_milestones := [50, 75, 100, 150]
+	var test_next := [75, 100, 150, 200]
+	for idx in range(test_milestones.size()):
+		var milestone: int = test_milestones[idx]
 		world.kills = milestone - 1
 		world._enemy_killed()
 		await frames(22)
 		check(paused and menu.active, "Milestone %d opens a new choice" % milestone)
 		menu.choose(0)
-		check(world.next_upgrade_kills == milestone + 50, "Next milestone requires fifty more kills")
+		check(world.next_upgrade_kills == test_next[idx], "Next milestone matches progression")
 		check(is_equal_approx(world.get_node("SpawnTimer").wait_time, 1.0 - 0.05 * world.upgrades_chosen), "Every chosen upgrade reduces delay by 0.05 seconds")
 	world.kills = 399
 	world._enemy_killed()
-	for milestone in [300, 350, 400]:
+	for milestone in [200, 250, 300, 400]:
 		await frames(22)
 		check(paused and world.next_upgrade_kills == milestone, "Crossed milestones are queued without losing choices")
 		menu.choose(0)
-	check(world.next_upgrade_kills == 450 and not paused, "All queued choices resume normally")
+	check(world.next_upgrade_kills == 500 and not paused, "All queued choices resume normally")
 	world.upgrades_chosen = 30
 	world._update_spawn_delay()
 	check(is_equal_approx(world.get_node("SpawnTimer").wait_time, 0.05), "Long runs retain a positive minimum spawn delay")
@@ -112,7 +115,7 @@ func run() -> void:
 	Input.action_release("reset_player")
 	await frames(5)
 	world = current_scene
-	check(world.upgrades_chosen == 0 and world.next_upgrade_kills == 50 and world.upgrade_levels.is_empty() and world.player._weapon.damage == 100, "Restart resets milestones and all upgrades")
+	check(world.upgrades_chosen == 0 and world.next_upgrade_kills == 25 and world.upgrade_levels.is_empty() and world.player._weapon.damage == 100, "Restart resets milestones and all upgrades")
 	check(is_equal_approx(world.get_node("SpawnTimer").wait_time, 1.0), "Restart restores one-second spawn delay")
 	world.get_node("SpawnTimer").stop()
 	world.player._weapon.set_physics_process(false)

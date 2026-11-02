@@ -7,14 +7,45 @@ extends Node3D
 @export var spawn_interval: float = 1.0
 @export var show_start_menu: bool = true
 static var skip_start_once: bool = false
+const KILL_MILESTONES: Array[int] = [
+	0,
+	25,
+	50,
+	75,
+	100,
+	150,
+	200,
+	250,
+	300,
+	400,
+	500,
+	600,
+	700,
+	900,
+	1100,
+	1300,
+	1500,
+	1900,
+	2300,
+	2700,
+	3100,
+	3900,
+	4700,
+	5500,
+	6300,
+	7900,
+	9500,
+	11100,
+	12700,
+	15000,
+]
 const Upgrades = preload("res://scripts/upgrades.gd")
 var upgrade_levels: Dictionary = {}
-var next_upgrade_kills: int = 50
+var next_upgrade_kills: int = 25
 var starting_upgrade: bool = false
 var enemy_max_health: int = 100
 var upgrades_chosen: int = 0
 var _upgrade_queued: bool = false
-var _next_gate: int = 0
 
 var running: bool = true
 var kills: int = 0
@@ -91,9 +122,8 @@ func spawn_enemy(at: Vector3) -> CharacterBody3D:
 func _spawn_next() -> void:
 	if not running or get_tree().paused:
 		return
-	var gates := $Spawners.get_children()
-	gates[_next_gate].spawn_one()
-	_next_gate = (_next_gate + 1) % gates.size()
+	for gate in $Spawners.get_children():
+		gate.spawn_one()
 
 func _enemy_killed() -> void:
 	kills += 1
@@ -131,7 +161,7 @@ func _choose_upgrade(id: String) -> void:
 	if starting_upgrade:
 		starting_upgrade = false
 	else:
-		next_upgrade_kills += 50
+		_advance_milestone()
 	enemy_max_health += 20
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		enemy.increase_max_health(20)
@@ -139,6 +169,14 @@ func _choose_upgrade(id: String) -> void:
 	get_tree().paused = false
 	_update_hud()
 	_queue_upgrade() # Handles several crossed milestones without losing choices.
+
+func _advance_milestone() -> void:
+	for milestone in KILL_MILESTONES:
+		if milestone > next_upgrade_kills:
+			next_upgrade_kills = milestone
+			return
+	var step: int = KILL_MILESTONES[-1] - KILL_MILESTONES[-2]
+	next_upgrade_kills += step
 
 func _update_spawn_delay() -> void:
 	# A positive floor avoids zero/negative timer durations in very long runs.

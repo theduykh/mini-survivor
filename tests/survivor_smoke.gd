@@ -32,8 +32,9 @@ func run() -> void:
 	gun.set_physics_process(false)
 	await frames(130)
 	check(world.get_node("Spawners").get_child_count() == 5, "Five wall-opening spawn gates")
-	check(get_nodes_in_group("enemies").size() == 2, "One orc total per second")
-	check(world.get_node("Spawners/GateLeft").spawned == 1 and world.get_node("Spawners/GateCenter").spawned == 1 and world.get_node("Spawners/GateRight").spawned == 0, "Gates take turns spawning")
+	check(get_nodes_in_group("enemies").size() == 10, "Five orcs per second across all gates")
+	for gate in world.get_node("Spawners").get_children():
+		check(gate.spawned == 2, "All five gates spawn simultaneously")
 	world.get_node("SpawnTimer").stop()
 	clear_enemies(world)
 	check(Vector2(player.position.x, player.position.z).length() < 0.1, "Spawning enemies never teleports the player")
@@ -112,7 +113,7 @@ func run() -> void:
 	await frames(22)
 	restarted.get_node("UpgradeMenu").choose(0)
 	await frames(65)
-	check(get_nodes_in_group("enemies").size() == 1, "Shared spawn schedule restarts correctly")
+	check(get_nodes_in_group("enemies").size() == 5, "Shared spawn schedule restarts correctly")
 	current_scene.free()
 	await frames(10) # Let audio playback release its mixing buffers.
 	print("SURVIVOR TEST: ", "FAILED" if failed else "ALL PASSED")
