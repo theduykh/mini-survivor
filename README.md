@@ -3,6 +3,13 @@
 Game 3D survivor cơ bản với nhân vật cầm súng, tự ngắm, tự bắn và Orc đuổi đánh.
 Dùng model Kenney đã có trong project; renderer Compatibility.
 
+## Dành cho AI agent và người phát triển
+
+Bắt đầu từ [AGENTS.md](AGENTS.md), sau đó chỉ đọc phần liên quan trong
+[kiến trúc dự án](docs/ARCHITECTURE.md) và [quy tắc kiểm thử tiết kiệm](docs/TESTING.md).
+Không cần chạy toàn bộ kiểm thử cho mỗi chỉnh sửa; tài liệu kiểm thử có bảng chọn
+test theo phạm vi thay đổi và lệnh chạy với log gọn.
+
 ## Chạy game
 
 1. Mở `D:/game-code/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe`.
