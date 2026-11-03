@@ -14,7 +14,7 @@ thông số gameplay tóm tắt trong [AGENTS.md](../AGENTS.md), bảng kỹ nă
 | Đạn | `scripts/projectile.gd`, `scenes/projectile.tscn` | ShapeCast quét đường bay, impact, xuyên/nảy, range |
 | Orc | `scripts/enemy.gd`, `scenes/enemy.tscn` | Đuổi theo A*, cận chiến có windup, HP, chết |
 | Hiệu ứng | `scripts/enemy_feedback.gd`, `shaders/enemy_damage.gdshader` | Flash, recoil, dissolve riêng từng Orc |
-| Cổng | `scripts/spawner.gd`, `scenes/spawner.tscn` | Model wall-opening, SpawnPoint, `spawn_one()` |
+| Cổng | `scripts/spawner.gd`, `scenes/spawner.tscn` | SpawnPoint trên mặt đất, `spawn_one()` |
 | Kỹ năng | `scripts/upgrades.gd` | Catalog, lọc giới hạn, chọn 3 ngẫu nhiên, áp hiệu quả |
 | Menu nâng cấp | `scripts/upgrade_menu.gd` | 3 thẻ, khóa input ngắn, phím 1/2/3, Xbox |
 | Start/pause | `scripts/game_menu.gd` | UI tạo bằng code, start/resume/restart/home/mute/quit |

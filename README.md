@@ -66,7 +66,7 @@ trên node World nếu cần. Khi đi chéo, tốc độ không vượt tốc đ
 | Orc | Sát thương | 10 / lần đánh |
 | Orc | Nhịp đánh | 1 lần / giây, có 0,25 giây chuẩn bị |
 | Orc | Tốc độ | 2,2 đơn vị / giây |
-| Spawn | 5 cổng wall-opening | Luân phiên từng cổng; delay cơ bản 1 giây, giảm sau nâng cấp |
+| Spawn | Ngẫu nhiên dọc theo thanh rào chắn trên cùng (tối đa 500 quái) | Delay cơ bản 1 giây, giảm sau nâng cấp |
 
 Nhân vật có 100 HP. Quái chỉ bắt đầu xuất hiện sau khi chọn nâng cấp khởi đầu.
 HUD hiển thị HP, số hạ gục, số quái còn sống và thời gian sống sót.
@@ -96,14 +96,14 @@ trên Xbox. Chọn xong trận đấu tiếp tục. R/Y chơi lại sẽ xóa to
 | Nâng cấp | Hiệu quả mỗi lần chọn | Giới hạn |
 | --- | --- | --- |
 | Cường hóa | +30% sát thương hiện tại, làm tròn lên | Không giới hạn |
-| Bắn nhanh | +20% tốc độ bắn hiện tại | 5 lần |
+| Bắn nhanh | +20% tốc độ bắn hiện tại | 10 lần |
 | Sinh lực | +25 HP tối đa và hồi 25 HP | Không giới hạn |
-| Đạn đôi | 2 viên song song phía trước | 1 lần |
-| Liên thanh | Bắn thêm một loạt sau 0,12 giây | 1 lần |
+| Đạn đôi | Thêm 1 viên bắn thẳng phía trước | 3 lần |
+| Liên thanh | Bắn thêm một loạt đạn sau 0,12 giây | 3 lần |
 | Đạn chéo | Thêm 2 viên ở góc ±25° | 1 lần |
-| Đạn xuyên | Xuyên thêm 1 quái, không xuyên tường | 2 lần |
-| Đạn nảy | Nảy thêm 1 lần sang quái trong 8 đơn vị, đường bay thông thoáng | 2 lần |
-| Chí mạng | +20 điểm phần trăm cơ hội gây sát thương gấp đôi | 4 lần, tối đa 80% |
+| Đạn xuyên | Xuyên thêm 1 quái, không xuyên tường | 5 lần |
+| Đạn nảy | Tạm thời ẩn khỏi danh sách nâng cấp | Tạm ẩn |
+| Chí mạng | +20 điểm phần trăm cơ hội gây sát thương gấp đôi | 5 lần, tối đa 100% |
 | Hấp thụ | Hồi 2 HP mỗi khi hạ quái | Không giới hạn |
 | Nhanh nhẹn | +15% tốc độ di chuyển hiện tại | 3 lần |
 
@@ -152,7 +152,7 @@ Nhịp spawn hiện lớn hơn khả năng hạ quái của một khẩu súng. 
 | `scenes/enemy.tscn` → Orc | Max Health = 100, Damage = 10, Speed, Attack Interval / Range / Windup |
 | `scripts/enemy.gd` | Đi tới nhân vật, đánh, nhận sát thương và chết |
 | `scenes/world.tscn` → World | Spawn Interval = 1; một timer chung luân phiên các cổng |
-| `scenes/spawner.tscn` → OrcGate | Model wall-opening và SpawnPoint |
+| `scenes/spawner.tscn` → OrcGate | Điểm SpawnPoint trên mặt đất |
 | `scripts/spawner.gd` | Tạo 1 Orc khi timer chung chọn đến cổng |
 
 Muốn đổi vị trí cổng: mở world.tscn, chỉnh Transform của các node dưới Spawners.

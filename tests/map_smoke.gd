@@ -22,7 +22,7 @@ func run() -> void:
 		root.size = dimensions
 		await process_frame
 		for x in [-19.0, 0.0, 19.0]:
-			for z in [-29.0, 0.0, 29.0]:
+			for z in [-59.0, 0.0, 59.0]:
 				world.camera_rig.position = world._clamp_camera(Vector3(x, 0, z) + world.camera_offset)
 				var footprint: Rect2 = world._camera_footprint()
 				footprint.position += Vector2(world.camera_rig.position.x, world.camera_rig.position.z)

@@ -22,6 +22,9 @@ var _animation: AnimationPlayer
 
 func _ready() -> void:
 	health = max_health
+	$Health.hide()
+	for mesh in $Model.find_children("*", "GeometryInstance3D", true, false):
+		(mesh as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_to_group("enemies")
 	_animation = $Model.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
 	for name in _animation.get_animation_library_list():
@@ -52,12 +55,11 @@ func _physics_process(delta: float) -> void:
 			if distance <= attack_range + 0.2 and _can_reach_player():
 				player.take_damage(damage)
 	var direction := Vector3.ZERO
-	if distance <= attack_range and _can_reach_player():
-		if _attack_cooldown <= 0.0001:
-			_attack_cooldown = attack_interval
-			_windup = attack_windup
-			_attack_lock = 0.55
-			_play(&"attack-melee-right", true)
+	if distance <= attack_range and _attack_cooldown <= 0.0001 and _can_reach_player():
+		_attack_cooldown = attack_interval
+		_windup = attack_windup
+		_attack_lock = 0.55
+		_play(&"attack-melee-right", true)
 	elif _attack_lock <= 0.0:
 		direction = _chase_direction(delta)
 		_play(&"walk")
@@ -71,18 +73,12 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 	move_and_slide()
 
-func _chase_direction(delta: float) -> Vector3:
-	_path_timer -= delta
-	if _path_timer <= 0.0:
-		_path_timer = 0.4
-		_path = arena.get_chase_path(global_position, player.global_position)
-		_waypoint = 0
-	while _waypoint < _path.size():
-		var offset := _path[_waypoint] - global_position
-		offset.y = 0.0
-		if offset.length() > 0.18:
-			return offset.normalized()
-		_waypoint += 1
+func _chase_direction(_delta: float) -> Vector3:
+	var toward := player.global_position - global_position
+	toward.y = 0.0
+	var len_sq := toward.length_squared()
+	if len_sq > 0.01:
+		return toward / sqrt(len_sq)
 	return Vector3.ZERO
 
 func _can_reach_player() -> bool:

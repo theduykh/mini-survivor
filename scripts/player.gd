@@ -34,6 +34,7 @@ var _animation_player: AnimationPlayer
 var _weapon: Node3D
 var _armed_clips: Dictionary = {}
 var current_target: CharacterBody3D
+var _aim_timer: float = 0.0
 
 @onready var visual: Node3D = $Visual
 @onready var model_slot: Node3D = $Visual/ModelSlot
@@ -170,10 +171,23 @@ func _physics_process(delta: float) -> void:
 		_update_animation(Vector2(real_velocity.x, real_velocity.z).length())
 
 func _aim_nearest_enemy() -> void:
+	_aim_timer -= get_physics_process_delta_time()
+	var shot_range_sq: float = _weapon.shot_range * _weapon.shot_range
+	if is_instance_valid(current_target) and not current_target.is_queued_for_deletion() and current_target.health > 0:
+		var current_diff := current_target.global_position - global_position
+		if Vector2(current_diff.x, current_diff.z).length_squared() <= shot_range_sq:
+			if _aim_timer > 0.0:
+				_weapon.target = current_target
+				_weapon.aim_point = current_target.global_position
+				_weapon.aiming = true
+				if Vector2(current_diff.x, current_diff.z).length() > 0.01:
+					visual.global_rotation.y = atan2(current_diff.x, current_diff.z)
+				return
+	_aim_timer = 0.08
 	_weapon.aiming = false
 	_weapon.target = null
 	current_target = null
-	var nearest_distance: float = _weapon.shot_range * _weapon.shot_range
+	var nearest_distance: float = shot_range_sq
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if enemy.is_queued_for_deletion() or enemy.health <= 0:
 			continue

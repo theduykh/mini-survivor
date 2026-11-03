@@ -23,16 +23,16 @@ roughness = 1.0
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 material = SubResource("GroundMaterial")
-size = Vector3(64, 1, 96)
+size = Vector3(64, 1, 192)
 
 [sub_resource type="BoxShape3D" id="GroundShape"]
-size = Vector3(64, 1, 96)
+size = Vector3(64, 1, 192)
 
 [sub_resource type="BoxShape3D" id="BoundaryShape"]
 size = Vector3(40, 4, 0.5)
 
 [sub_resource type="BoxShape3D" id="SideBoundaryShape"]
-size = Vector3(60, 4, 0.5)
+size = Vector3(120, 4, 0.5)
 
 [node name="World" type="Node3D"]
 script = ExtResource("1_world")
@@ -60,11 +60,11 @@ shape = SubResource("GroundShape")
 [node name="Boundaries" type="StaticBody3D" parent="."]
 
 [node name="North" type="CollisionShape3D" parent="Boundaries"]
-position = Vector3(0, 1, -30)
+position = Vector3(0, 1, -60)
 shape = SubResource("BoundaryShape")
 
 [node name="South" type="CollisionShape3D" parent="Boundaries"]
-position = Vector3(0, 1, 30)
+position = Vector3(0, 1, 60)
 shape = SubResource("BoundaryShape")
 
 [node name="East" type="CollisionShape3D" parent="Boundaries"]

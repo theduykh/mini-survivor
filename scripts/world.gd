@@ -1,12 +1,13 @@
 extends Node3D
 
 @export var camera_offset := Vector3(0, 0, -8)
-@export var camera_map_bounds := Rect2(-24, -36, 48, 72)
+@export var camera_map_bounds := Rect2(-24, -66, 48, 132)
 @export var camera_view_size: float = 26.0
 @export_range(0.05, 0.8, 0.01) var controller_deadzone: float = 0.2
 @export var spawn_interval: float = 1.0
 @export var show_start_menu: bool = true
 static var skip_start_once: bool = false
+const MAX_ENEMIES: int = 500
 const KILL_MILESTONES: Array[int] = [
 	0,
 	25,
@@ -50,6 +51,7 @@ var _upgrade_queued: bool = false
 var running: bool = true
 var kills: int = 0
 var elapsed: float = 0.0
+var _hud_timer: float = 0.0
 var _navigation := AStarGrid2D.new()
 
 @onready var player: CharacterBody3D = $Player
@@ -93,7 +95,10 @@ func _process(delta: float) -> void:
 	camera_rig.global_position = _clamp_camera(camera_rig.global_position.lerp(target, 1.0 - exp(-8.0 * delta)))
 	if running:
 		elapsed += delta
-	_update_hud()
+	_hud_timer -= delta
+	if _hud_timer <= 0.0:
+		_hud_timer = 0.1
+		_update_hud()
 
 func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_pressed("reset_player"):
@@ -121,6 +126,8 @@ func spawn_enemy(at: Vector3) -> CharacterBody3D:
 
 func _spawn_next() -> void:
 	if not running or get_tree().paused:
+		return
+	if get_tree().get_nodes_in_group("enemies").size() >= MAX_ENEMIES:
 		return
 	for gate in $Spawners.get_children():
 		gate.spawn_one()
@@ -163,8 +170,6 @@ func _choose_upgrade(id: String) -> void:
 	else:
 		_advance_milestone()
 	enemy_max_health += 20
-	for enemy in get_tree().get_nodes_in_group("enemies"):
-		enemy.increase_max_health(20)
 	_update_spawn_delay()
 	get_tree().paused = false
 	_update_hud()
@@ -201,7 +206,7 @@ func _update_hud() -> void:
 
 func _setup_navigation() -> void:
 	# The combat floor is open; scenery sits beyond the boundary.
-	_navigation.region = Rect2i(-19, -29, 39, 59)
+	_navigation.region = Rect2i(-19, -59, 39, 119)
 	_navigation.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
 	_navigation.update()
 
@@ -218,7 +223,7 @@ func get_chase_path(from: Vector3, to: Vector3) -> PackedVector3Array:
 	return path
 
 func _walkable_cell(point: Vector3) -> Vector2i:
-	var cell := Vector2i(clampi(roundi(point.x), -19, 19), clampi(roundi(point.z), -29, 29))
+	var cell := Vector2i(clampi(roundi(point.x), -19, 19), clampi(roundi(point.z), -59, 59))
 	if not _navigation.is_point_solid(cell):
 		return cell
 	for radius in range(1, 6):

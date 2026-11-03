@@ -18,10 +18,11 @@
 - Thưởng tiếp tại **tổng** 50, 100, 150… quái. Nâng cấp đầu trận không ăn mốc 50.
 - Sát thương súng cơ bản 100; nhân vật 100 HP; Orc cơ bản 100 HP, damage 10.
 - Với `n = upgrades_chosen`, **kể cả nâng cấp khởi đầu**:
-  HP Orc = `100 + 20*n`; delay spawn = `max(0.05, 1.0 - 0.05*n)` giây.
-- Orc sống tăng cả HP hiện tại và tối đa thêm 20; giữ lượng sát thương đã nhận.
-- 5 cổng dùng **một timer chung**, luân phiên sinh 1 quái mỗi tick, không phải 5 quái/tick.
-- Sân 40×60, X ±20, Z ±30; không có chướng ngại vật trong sân.
+  HP Orc mới spawn = `100 + 20*n`; delay spawn = `max(0.05, 1.0 - 0.05*n)` giây.
+- Mỗi khi level up, chỉ tăng HP của quái được spawn mới, không tăng HP của quái đang tồn tại trên sân.
+- Sinh quái ngẫu nhiên dọc theo dải trên cùng của map (X ±18, Z -27), tối đa 500 quái đồng thời trên sân.
+- Sân 40×120, X ±20, Z ±60; không có chướng ngại vật trong sân.
+- Tạm thời ẩn kỹ năng Đạn nảy, chỉ giữ Đạn xuyên thấu.
 - Pause phải dừng chiến đấu, đạn, spawn, đồng hồ. Menu và nhạc vẫn hoạt động.
 - Pause trong menu nâng cấp phải giữ lựa chọn; tiếp tục vẫn chờ chọn nâng cấp.
 - Giữ hỗ trợ chuột/bàn phím và Xbox. Không đổi thao tác ngắm/bắn tự động.

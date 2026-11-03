@@ -10,7 +10,7 @@ height = 2.2
 
 [node name="Orc" type="CharacterBody3D"]
 collision_layer = 2
-collision_mask = 7
+collision_mask = 5
 platform_floor_layers = 1
 floor_snap_length = 0.2
 script = ExtResource("1")
@@ -23,6 +23,7 @@ shape = SubResource("Shape")
 scale = Vector3(3, 3, 3)
 
 [node name="Health" type="Label3D" parent="."]
+visible = false
 position = Vector3(0, 2.7, 0)
 billboard = 1
 font_size = 40
