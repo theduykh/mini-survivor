@@ -8,7 +8,7 @@ thông số gameplay tóm tắt trong [AGENTS.md](../AGENTS.md), bảng kỹ nă
 
 | Phạm vi | File chính | Trách nhiệm |
 | --- | --- | --- |
-| Vòng chơi | `scripts/world.gd`, `scenes/world.tscn` | Input bindings, spawn chung, kills, nâng cấp, HP scaling, camera, A*, HUD, reset |
+| Vòng chơi | `scripts/world.gd`, `scenes/world.tscn` | Input bindings, spawn chung, kills, nâng cấp, HP scaling, tốc độ x2, camera, A*, HUD, reset |
 | Nhân vật | `scripts/player.gd`, `scenes/player.tscn` | Di chuyển analog, animation, HP, chọn mục tiêu và xoay súng |
 | Súng | `scripts/weapon.gd`, `scenes/weapon.tscn` | Cooldown, các loạt đạn, chí mạng, đầu nòng, tín hiệu `fired` |
 | Đạn | `scripts/projectile.gd`, `scenes/projectile.tscn` | ShapeCast quét đường bay, impact, xuyên/nảy, range |

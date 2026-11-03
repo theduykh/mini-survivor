@@ -51,6 +51,8 @@ var _upgrade_queued: bool = false
 var running: bool = true
 var kills: int = 0
 var elapsed: float = 0.0
+var game_speed: float = 1.0
+var speed_button: Button
 var _hud_timer: float = 0.0
 var _navigation := AStarGrid2D.new()
 
@@ -64,9 +66,11 @@ func _ready() -> void:
 	_bind_keys("move_back", [KEY_S, KEY_DOWN])
 	_bind_keys("reset_player", [KEY_R])
 	_bind_keys("toggle_audio", [KEY_M])
+	_bind_keys("toggle_speed", [KEY_T])
 	_bind_joy_button("toggle_audio", JOY_BUTTON_BACK)
 	_bind_controller()
 	_setup_navigation()
+	_setup_speed_button()
 	for gate in $Spawners.get_children():
 		gate.arena = self
 	$SpawnTimer.wait_time = spawn_interval
@@ -106,9 +110,55 @@ func _physics_process(_delta: float) -> void:
 		return
 	if Input.is_action_just_pressed("toggle_audio"):
 		$Audio.toggle_mute()
+	if Input.is_action_just_pressed("toggle_speed"):
+		toggle_game_speed()
+
+func _exit_tree() -> void:
+	Engine.time_scale = 1.0
+
+func toggle_game_speed() -> void:
+	set_game_speed(2.0 if game_speed == 1.0 else 1.0)
+
+func set_game_speed(speed: float) -> void:
+	game_speed = speed
+	Engine.time_scale = game_speed
+	_update_hud()
+
+func _setup_speed_button() -> void:
+	speed_button = Button.new()
+	speed_button.name = "SpeedButton"
+	speed_button.text = "⚡ 1x"
+	speed_button.tooltip_text = "Chuyển tốc độ game (Phím T / Xbox X)"
+	speed_button.custom_minimum_size = Vector2(90, 42)
+	speed_button.anchor_left = 1.0
+	speed_button.anchor_right = 1.0
+	speed_button.offset_left = -115
+	speed_button.offset_top = 20
+	speed_button.offset_right = -20
+	speed_button.offset_bottom = 64
+	speed_button.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	speed_button.focus_mode = Control.FOCUS_NONE
+
+	var normal_style := StyleBoxFlat.new()
+	normal_style.bg_color = Color(0.12, 0.17, 0.14, 0.85)
+	normal_style.border_color = Color(0.7, 0.76, 0.44)
+	normal_style.set_border_width_all(2)
+	normal_style.set_corner_radius_all(8)
+	speed_button.add_theme_stylebox_override("normal", normal_style)
+
+	var hover_style := normal_style.duplicate()
+	hover_style.bg_color = Color(0.22, 0.29, 0.2, 0.95)
+	speed_button.add_theme_stylebox_override("hover", hover_style)
+	speed_button.add_theme_stylebox_override("pressed", hover_style)
+
+	speed_button.add_theme_font_size_override("font_size", 18)
+	speed_button.add_theme_color_override("font_color", Color(0.87, 0.9, 0.8))
+	speed_button.pressed.connect(toggle_game_speed)
+	$HUD.add_child(speed_button)
 
 func restart_game(to_start: bool = false) -> void:
 	skip_start_once = not to_start
+	Engine.time_scale = 1.0
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
@@ -198,11 +248,17 @@ func _game_over() -> void:
 	$SpawnTimer.stop()
 
 func _update_hud() -> void:
-	var controls := "Left stick / D-pad: move | Y: restart" if not Input.get_connected_joypads().is_empty() else "WASD: move | R: restart"
+	var joy_connected := not Input.get_connected_joypads().is_empty()
+	var controls := "Left stick / D-pad: move | Y: restart" if joy_connected else "WASD: move | R: restart"
+	var speed_key := "X" if joy_connected else "T"
+	var speed_label := "2x" if game_speed > 1.0 else "1x"
 	var status := ("AUTO AIM + FIRE | " if running else "GAME OVER | ") + controls
 	status += " | M/Back: sound " + ("OFF" if $Audio.muted else "ON")
+	status += " | %s: speed %s" % [speed_key, speed_label]
 	status += " | Esc/Start: pause"
-	$HUD/Panel/Margin/Label.text = "MINI SURVIVOR   HP %d / %d\nKills: %d / %d   Upgrades: %d   Orcs: %d   Time: %ds\n%s" % [player.health, player.max_health, kills, next_upgrade_kills, upgrades_chosen, get_tree().get_nodes_in_group("enemies").size(), int(elapsed), status]
+	$HUD/Panel/Margin/Label.text = "MINI SURVIVOR   HP %d / %d   ⚡ %s\nKills: %d / %d   Upgrades: %d   Orcs: %d   Time: %ds\n%s" % [player.health, player.max_health, speed_label, kills, next_upgrade_kills, upgrades_chosen, get_tree().get_nodes_in_group("enemies").size(), int(elapsed), status]
+	if is_instance_valid(speed_button):
+		speed_button.text = "⚡ %s" % speed_label
 
 func _setup_navigation() -> void:
 	# The combat floor is open; scenery sits beyond the boundary.
@@ -267,6 +323,7 @@ func _bind_controller() -> void:
 			InputMap.action_add_event(binding[0], axis)
 		_bind_joy_button(binding[0], binding[3])
 	_bind_joy_button("reset_player", JOY_BUTTON_Y)
+	_bind_joy_button("toggle_speed", JOY_BUTTON_X)
 
 func _bind_joy_button(action: StringName, button: int) -> void:
 	var event := InputEventJoypadButton.new()

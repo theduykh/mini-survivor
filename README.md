@@ -17,8 +17,9 @@ test theo phạm vi thay đổi và lệnh chạy với log gọn.
 3. Chờ import tài nguyên rồi nhấn **F5**, chọn **Bắt đầu** để vào trận.
 4. Dùng **WASD / phím mũi tên** để di chuyển. Nhân vật tự quay về phía quái
    gần nhất trong tầm bắn và tự bắn, không cần chuột.
-5. **R** bắt đầu lại toàn bộ lượt chơi, hồi đầy máu, xóa quái và đặt lại số hạ gục.
-6. **F8** dừng game để quay lại editor.
+5. **T** hoặc click nút **⚡ 1x / ⚡ 2x** ở góc trên bên phải để chuyển đổi tốc độ game giữa 1x và 2x.
+6. **R** bắt đầu lại toàn bộ lượt chơi, hồi đầy máu, xóa quái và đặt lại số hạ gục.
+7. **F8** dừng game để quay lại editor.
 
 Nếu dùng máy khác, cài Godot 4 Standard từ https://godotengine.org/download/windows/.
 Không cần bản .NET.
@@ -48,6 +49,7 @@ chạy F5 và chọn cửa sổ game để chơi. Có thể cắm tay cầm khi 
 
 - Cần trái: di chuyển analog; đẩy nhẹ đi chậm, đẩy hết đi nhanh.
 - D-pad: di chuyển ở tốc độ tối đa.
+- Nút X: chuyển đổi tốc độ game giữa 1x và 2x.
 - Nút Y: chơi lại toàn bộ lượt, tương đương phím R.
 - Ngắm và bắn vẫn tự động, không cần cần phải hoặc cò RT.
 

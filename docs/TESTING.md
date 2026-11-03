@@ -13,6 +13,7 @@ chạy toàn bộ test hoặc tạo test mới cho mọi chỉnh sửa.
 | Đạn, sweep, tường, range | `projectile_smoke.gd` | `upgrades_smoke.gd` nếu ảnh hưởng xuyên/nảy/nhiều viên |
 | Start, pause, resume, reset | `menu_smoke.gd` | `balance_smoke.gd` nếu đổi thưởng khởi đầu |
 | Input/gamepad/di chuyển analog | `controller_smoke.gd` | `menu_smoke.gd` nếu đổi input menu |
+| Tốc độ game (x2) | `speed_smoke.gd` | `menu_smoke.gd` nếu ảnh hưởng pause |
 | Camera/map | `map_smoke.gd` | Một ảnh render/chơi thử khi cần xác nhận bố cục |
 | Hit/death/audio | `feedback_audio_smoke.gd` | Render/nghe thử phần đã đổi nếu cần |
 | Auto aim/fire, melee, game over | `survivor_smoke.gd` | Test cụ thể của hệ thống liên quan |
