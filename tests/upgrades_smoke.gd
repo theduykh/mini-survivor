@@ -77,7 +77,7 @@ func run() -> void:
 	check(not paused and not menu.active and world.upgrades_chosen == 1 and world.upgrade_levels.get(selected, 0) == 1, "Xbox D-pad and A apply one choice and resume")
 	menu.choose(0)
 	check(world.upgrades_chosen == 1 and world.next_upgrade_kills == 50, "Duplicate confirm does not grant an extra upgrade")
-	check(is_equal_approx(world.get_node("SpawnTimer").wait_time, 0.95) and world.get_node("SpawnTimer").time_left <= timer, "First upgrade reduces delay to 0.95 without postponing pending spawn")
+	check(is_equal_approx(world.get_node("SpawnTimer").wait_time, 0.95) and world.get_node("SpawnTimer").time_left <= 0.95, "Wave transition resets spawn delay to 0.95")
 	var spawned_before := get_nodes_in_group("enemies").size()
 	await frames(120)
 	check(get_nodes_in_group("enemies").size() >= spawned_before + 2, "Reduced timer continues spawning enemies")

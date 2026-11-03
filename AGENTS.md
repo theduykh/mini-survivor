@@ -15,12 +15,15 @@
 ## Luật chơi cần giữ nếu không được yêu cầu thay đổi
 
 - Bắt đầu/chơi lại: chọn 1 trong 3 nâng cấp trước khi chiến đấu.
-- Thưởng tiếp tại **tổng** 50, 100, 150… quái. Nâng cấp đầu trận không ăn mốc 50.
+- Cơ chế wave:
+  - Wave 1 spawn 20 quái, HP = 100.
+  - Số lượng quái ở wave tiếp theo bằng wave trước đó + 20% (làm tròn). HP quái +20 mỗi wave (Wave 1: 100 HP, Wave 2: 120 HP...).
+  - Thời gian để spawn toàn bộ quái của mỗi wave là 10 giây (interval = `10.0 / wave_total_enemies`).
+  - Giới hạn tối đa 300 quái đồng thời trên sân: nếu đạt 300 quái thì spawner dừng và đợi người chơi tiêu diệt bớt quái mới spawn tiếp.
+  - Tiêu diệt hết quái của wave sẽ mở menu chọn nâng cấp.
+  - Tự động bắt đầu wave mới sau khi chọn xong nâng cấp.
 - Sát thương súng cơ bản 100; nhân vật 100 HP; Orc cơ bản 100 HP, damage 10.
-- Với `n = upgrades_chosen`, **kể cả nâng cấp khởi đầu**:
-  HP Orc mới spawn = `100 + 20*n`; delay spawn = `max(0.05, 1.0 - 0.05*n)` giây.
-- Mỗi khi level up, chỉ tăng HP của quái được spawn mới, không tăng HP của quái đang tồn tại trên sân.
-- Sinh quái ngẫu nhiên dọc theo dải trên cùng của map (X ±18, Z -27), tối đa 500 quái đồng thời trên sân.
+- Sinh quái ngẫu nhiên dọc theo dải trên cùng của map (X ±18, Z -27), tối đa 300 quái đồng thời trên sân.
 - Sân 40×120, X ±20, Z ±60; không có chướng ngại vật trong sân.
 - Tạm thời ẩn kỹ năng Đạn nảy, chỉ giữ Đạn xuyên thấu.
 - Pause phải dừng chiến đấu, đạn, spawn, đồng hồ. Menu và nhạc vẫn hoạt động.

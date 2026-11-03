@@ -7,46 +7,22 @@ extends Node3D
 @export var spawn_interval: float = 1.0
 @export var show_start_menu: bool = true
 static var skip_start_once: bool = false
-const MAX_ENEMIES: int = 500
-const KILL_MILESTONES: Array[int] = [
-	0,
-	25,
-	50,
-	75,
-	100,
-	150,
-	200,
-	250,
-	300,
-	400,
-	500,
-	600,
-	700,
-	900,
-	1100,
-	1300,
-	1500,
-	1900,
-	2300,
-	2700,
-	3100,
-	3900,
-	4700,
-	5500,
-	6300,
-	7900,
-	9500,
-	11100,
-	12700,
-	15000,
-]
+const MAX_ENEMIES: int = 300
+const WAVE_SPAWN_DURATION: float = 10.0
+
 const Upgrades = preload("res://scripts/upgrades.gd")
 var upgrade_levels: Dictionary = {}
-var next_upgrade_kills: int = 25
+var next_upgrade_kills: int = 20
 var starting_upgrade: bool = false
 var enemy_max_health: int = 100
 var upgrades_chosen: int = 0
 var _upgrade_queued: bool = false
+
+var current_wave: int = 1
+var wave_start_kills: int = 0
+var wave_spawned: int = 0
+var wave_total_enemies: int = 20
+var _current_gate_index: int = 0
 
 var running: bool = true
 var kills: int = 0
@@ -73,7 +49,10 @@ func _ready() -> void:
 	_setup_speed_button()
 	for gate in $Spawners.get_children():
 		gate.arena = self
-	$SpawnTimer.wait_time = spawn_interval
+	wave_total_enemies = 20
+	next_upgrade_kills = 20
+	enemy_max_health = 100
+	_update_spawn_delay()
 	$SpawnTimer.timeout.connect(_spawn_next)
 	$UpgradeMenu.chosen.connect(_choose_upgrade)
 	player.died.connect(_game_over)
@@ -177,21 +156,61 @@ func spawn_enemy(at: Vector3) -> CharacterBody3D:
 func _spawn_next() -> void:
 	if not running or get_tree().paused:
 		return
-	if get_tree().get_nodes_in_group("enemies").size() >= MAX_ENEMIES:
+	if wave_spawned >= wave_total_enemies:
+		$SpawnTimer.stop()
 		return
-	for gate in $Spawners.get_children():
-		gate.spawn_one()
+	var current_enemies := get_tree().get_nodes_in_group("enemies").size()
+	if current_enemies >= MAX_ENEMIES:
+		return
+	var gates := $Spawners.get_children()
+	if gates.is_empty():
+		return
+	var available_slots := MAX_ENEMIES - current_enemies
+	var remaining_to_spawn := wave_total_enemies - wave_spawned
+	var batch_size := maxi(1, int(round(float(wave_total_enemies) / (WAVE_SPAWN_DURATION / $SpawnTimer.wait_time))))
+	var count_to_spawn := mini(available_slots, mini(remaining_to_spawn, batch_size))
+	for _i in range(count_to_spawn):
+		gates[_current_gate_index % gates.size()].spawn_one()
+		_current_gate_index += 1
+		wave_spawned += 1
+		if wave_spawned >= wave_total_enemies:
+			$SpawnTimer.stop()
+			break
 
 func _enemy_killed() -> void:
 	kills += 1
 	$Audio.play_death()
 	player.heal(int(upgrade_levels.get("vampire", 0)) * 2)
+	if wave_spawned < wave_total_enemies and $SpawnTimer.is_stopped():
+		$SpawnTimer.start()
 	_queue_upgrade()
 
 func _queue_upgrade() -> void:
 	if running and kills >= next_upgrade_kills and not _upgrade_queued and not $UpgradeMenu.active:
 		_upgrade_queued = true
-		_show_upgrade.call_deferred()
+		_end_wave()
+
+func _end_wave() -> void:
+	_reset_spawn_delay()
+	_show_upgrade.call_deferred()
+
+func _reset_spawn_delay() -> void:
+	$SpawnTimer.stop()
+	_update_spawn_delay()
+
+func _start_wave(wave_num: int) -> void:
+	current_wave = wave_num
+	wave_start_kills = kills
+	if current_wave == 1:
+		wave_total_enemies = 20
+		enemy_max_health = 100
+	else:
+		wave_total_enemies = maxi(wave_total_enemies + 1, int(round(wave_total_enemies * 1.2)))
+		enemy_max_health = 100 + 20 * (current_wave - 1)
+	next_upgrade_kills = wave_start_kills + wave_total_enemies
+	wave_spawned = 0
+	_update_spawn_delay()
+	$SpawnTimer.start()
 
 func _show_upgrade() -> void:
 	_upgrade_queued = false
@@ -199,7 +218,7 @@ func _show_upgrade() -> void:
 	if not running or player.health <= 0 or $UpgradeMenu.active:
 		return
 	_update_hud()
-	$UpgradeMenu.show_choices(Upgrades.offers(upgrade_levels), 0 if starting_upgrade else next_upgrade_kills, upgrade_levels)
+	$UpgradeMenu.show_choices(Upgrades.offers(upgrade_levels), 0 if starting_upgrade else next_upgrade_kills, upgrade_levels, 0 if starting_upgrade else current_wave)
 	get_tree().paused = true
 	if has_node("GameMenu"):
 		$GameMenu.upgrade_opened()
@@ -217,30 +236,16 @@ func _choose_upgrade(id: String) -> void:
 	upgrades_chosen += 1
 	if starting_upgrade:
 		starting_upgrade = false
+		_start_wave(1)
 	else:
-		_advance_milestone()
-	enemy_max_health += 20
-	_update_spawn_delay()
+		_start_wave(current_wave + 1)
 	get_tree().paused = false
 	_update_hud()
 	_queue_upgrade() # Handles several crossed milestones without losing choices.
 
-func _advance_milestone() -> void:
-	for milestone in KILL_MILESTONES:
-		if milestone > next_upgrade_kills:
-			next_upgrade_kills = milestone
-			return
-	var step: int = KILL_MILESTONES[-1] - KILL_MILESTONES[-2]
-	next_upgrade_kills += step
-
 func _update_spawn_delay() -> void:
-	# A positive floor avoids zero/negative timer durations in very long runs.
-	var delay := maxf(0.05, spawn_interval - 0.05 * upgrades_chosen)
-	var timer: Timer = $SpawnTimer
-	if not timer.is_stopped():
-		# Apply immediately without extending the already pending spawn.
-		timer.start(minf(timer.time_left, delay))
-	timer.wait_time = delay
+	var delay := maxf(0.02, WAVE_SPAWN_DURATION / float(maxi(1, wave_total_enemies)))
+	$SpawnTimer.wait_time = delay
 
 func _game_over() -> void:
 	running = false
@@ -256,7 +261,7 @@ func _update_hud() -> void:
 	status += " | M/Back: sound " + ("OFF" if $Audio.muted else "ON")
 	status += " | %s: speed %s" % [speed_key, speed_label]
 	status += " | Esc/Start: pause"
-	$HUD/Panel/Margin/Label.text = "MINI SURVIVOR   HP %d / %d   ⚡ %s\nKills: %d / %d   Upgrades: %d   Orcs: %d   Time: %ds\n%s" % [player.health, player.max_health, speed_label, kills, next_upgrade_kills, upgrades_chosen, get_tree().get_nodes_in_group("enemies").size(), int(elapsed), status]
+	$HUD/Panel/Margin/Label.text = "MINI SURVIVOR   Wave %d   HP %d / %d   ⚡ %s\nKills: %d / %d   Upgrades: %d   Orcs: %d   Time: %ds\n%s" % [current_wave, player.health, player.max_health, speed_label, kills, next_upgrade_kills, upgrades_chosen, get_tree().get_nodes_in_group("enemies").size(), int(elapsed), status]
 	if is_instance_valid(speed_button):
 		speed_button.text = "⚡ %s" % speed_label
 

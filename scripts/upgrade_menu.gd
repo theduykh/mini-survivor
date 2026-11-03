@@ -81,15 +81,18 @@ func _label(text: String, size: int) -> Label:
 	label.add_theme_color_override("font_color", Color(0.83, 0.87, 0.78))
 	return label
 
-func show_choices(options: Array, milestone: int, levels: Dictionary) -> void:
+func show_choices(options: Array, milestone: int, levels: Dictionary, wave_num: int = 0) -> void:
 	offers = options
 	active = true
 	_lock = 0.25
 	_focused = 0
 	_stick_direction = 0
-	_summary.text = "Đã hạ %d quái  ·  Chọn 1 trong 3  ·  Trận đấu đang tạm dừng" % milestone
-	if milestone == 0:
+	if wave_num > 0:
+		_summary.text = "Hoàn thành Wave %d  ·  Đã hạ %d quái  ·  Chọn 1 trong 3" % [wave_num, milestone]
+	elif milestone == 0:
 		_summary.text = "Nâng cấp khởi đầu  ·  Chọn 1 trong 3 để bắt đầu trận đấu"
+	else:
+		_summary.text = "Đã hạ %d quái  ·  Chọn 1 trong 3  ·  Trận đấu đang tạm dừng" % milestone
 	for i in range(cards.size()):
 		var entry: Dictionary = offers[i]
 		cards[i].text = "%d   •   %s\n\n%s\n\n%s\n\nĐã chọn: %d lần" % [i + 1, entry.icon, entry.title, entry.description, levels.get(entry.id, 0)]

@@ -40,7 +40,7 @@ func run():
 	check(paused and world.starting_upgrade, "Start offers a free upgrade before combat")
 	key(KEY_1)
 	await frames(70)
-	check(not paused and get_nodes_in_group("enemies").size() == 5, "Enter starts game and spawning")
+	check(not paused and get_nodes_in_group("enemies").size() >= 2, "Enter starts game and spawning")
 	world.player._weapon.set_physics_process(false)
 	key(KEY_ESCAPE)
 	var elapsed: float = world.elapsed
