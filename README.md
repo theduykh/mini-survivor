@@ -95,17 +95,18 @@ trên Xbox. Chọn xong trận đấu tiếp tục. R/Y chơi lại sẽ xóa to
 
 | Nâng cấp | Hiệu quả mỗi lần chọn | Giới hạn |
 | --- | --- | --- |
-| Cường hóa | +30% sát thương hiện tại, làm tròn lên | Không giới hạn |
-| Bắn nhanh | +20% tốc độ bắn hiện tại | 10 lần |
+| Cường hóa | +10% sát thương hiện tại, làm tròn | Không giới hạn |
+| Bắn nhanh | +10% tốc độ bắn hiện tại | 10 lần |
 | Sinh lực | +25 HP tối đa và hồi 25 HP | Không giới hạn |
 | Đạn đôi | Thêm 1 viên bắn thẳng phía trước | 3 lần |
 | Liên thanh | Bắn thêm một loạt đạn sau 0,12 giây | 3 lần |
-| Đạn chéo | Thêm 2 viên ở góc ±25° | 1 lần |
-| Đạn xuyên | Xuyên thêm 1 quái, không xuyên tường | 5 lần |
+| Đạn chéo | Thêm 2 viên ở góc ±25° (60% sát thương) | 3 lần |
+| Đạn xuyên | Xuyên thêm 1 quái (giảm 70%, 50% dmg, sàn 50%), không xuyên tường | 10 lần |
 | Đạn nảy | Tạm thời ẩn khỏi danh sách nâng cấp | Tạm ẩn |
-| Chí mạng | +20 điểm phần trăm cơ hội gây sát thương gấp đôi | 5 lần, tối đa 100% |
+| Chí mạng | +15 điểm phần trăm cơ hội gây sát thương chí mạng | 5 lần, tối đa 75% |
+| ST chí mạng | +20% sát thương khi kích hoạt đòn chí mạng | 10 lần |
 | Hấp thụ | Hồi 2 HP mỗi khi hạ quái | Không giới hạn |
-| Nhanh nhẹn | +15% tốc độ di chuyển hiện tại | 3 lần |
+| Nhanh nhẹn | +15% tốc độ di chuyển hiện tại | 10 lần |
 
 Các nâng cấp kết hợp được với nhau. Nâng cấp đã đạt giới hạn không xuất hiện lại.
 Đạn nảy được ưu tiên trước đạn xuyên; mỗi viên chỉ gây sát thương một lần lên mỗi quái.

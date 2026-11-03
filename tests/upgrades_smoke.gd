@@ -131,7 +131,9 @@ func run() -> void:
 	Upgrades.apply("agility", player)
 	player.health = 50
 	Upgrades.apply("vitality", player)
-	check(gun.damage == 130 and is_equal_approx(gun.shot_interval, 1.0 / 1.2) and is_equal_approx(gun.critical_chance, 0.2) and player.speed > 5.5 and player.max_health == 125 and player.health == 75, "Stat upgrades change actual combat values")
+	check(gun.damage == 110 and is_equal_approx(gun.shot_interval, 1.0 / 1.1) and is_equal_approx(gun.critical_chance, 0.15) and player.speed > 5.5 and player.max_health == 125 and player.health == 75, "Stat upgrades change actual combat values")
+	Upgrades.apply("crit_damage", player)
+	check(is_equal_approx(gun.critical_multiplier, 2.2), "Crit damage increases multiplier to 2.2")
 	world.upgrade_levels["vampire"] = 2
 	world._enemy_killed()
 	check(player.health == 79, "Stacked absorption heals four HP per kill")
@@ -141,7 +143,7 @@ func run() -> void:
 	await frames(3)
 	bullet(world, 1, 0)
 	await frames(25)
-	check(first.health == 90 and second.health == 90, "Piercing hits two enemies exactly once each")
+	check(first.health == 90 and second.health == 93, "Piercing hits two enemies with reduced damage on pierce")
 	clear_combat(world)
 	first = enemy(world, Vector3(0, 0.1, -3))
 	second = enemy(world, Vector3(3, 0.1, -3))
@@ -153,6 +155,7 @@ func run() -> void:
 	Upgrades.apply("front", player)
 	Upgrades.apply("burst", player)
 	Upgrades.apply("diagonal", player)
+	gun.critical_multiplier = 2.0
 	gun.critical_chance = 1.0 # Deterministic critical damage test.
 	gun.aiming = true
 	gun.aim_point = Vector3(0, 1, -10)
@@ -162,8 +165,12 @@ func run() -> void:
 	check(get_nodes_in_group("projectiles").size() == 4, "Double front shot and diagonal shot combine")
 	await frames(12)
 	check(get_nodes_in_group("projectiles").size() == 8, "Multishot repeats the entire upgraded volley")
+	var main_rounds := 0
+	var diag_rounds := 0
 	for round in get_nodes_in_group("projectiles"):
-		check(round.damage == 260, "Critical damage is doubled on real projectiles")
+		if round.damage == 220: main_rounds += 1
+		elif round.damage == 132: diag_rounds += 1
+	check(main_rounds == 4 and diag_rounds == 4, "Diagonal shots deal 60% of main projectile damage")
 	clear_combat(world)
 	world.free()
 	await frames(10)

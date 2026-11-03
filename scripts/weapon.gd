@@ -23,10 +23,13 @@ var _gun_visual: Node3D
 var _recoil: Tween
 var front_projectiles: int = 1
 var burst_count: int = 1
-var diagonal_shots: bool = false
+var diagonal_count: int = 0
+var diagonal_shots: bool:
+	get: return diagonal_count > 0
 var pierce_count: int = 0
 var ricochet_count: int = 0
 var critical_chance: float = 0.0
+var critical_multiplier: float = 2.0
 
 func _ready() -> void:
 	if gun_model != null:
@@ -79,14 +82,18 @@ func _fire_volley(direction: Vector3) -> void:
 	var side := Vector3(direction.z, 0, -direction.x).normalized()
 	for i in range(front_projectiles):
 		var offset := (float(i) - float(front_projectiles - 1) * 0.5) * 0.28
-		var projectile := _spawn_projectile(start + side * offset, direction)
+		var projectile := _spawn_projectile(start + side * offset, direction, false)
 		if i == 0:
 			fired.emit(projectile) # One sound per volley, even for multiple bullets.
-	if diagonal_shots:
+	if diagonal_count > 0:
 		for angle in [-25.0, 25.0]:
-			_spawn_projectile(start, direction.rotated(Vector3.UP, deg_to_rad(angle)))
+			var diag_dir := direction.rotated(Vector3.UP, deg_to_rad(angle))
+			var diag_side := Vector3(diag_dir.z, 0, -diag_dir.x).normalized()
+			for i in range(diagonal_count):
+				var offset := (float(i) - float(diagonal_count - 1) * 0.5) * 0.28
+				_spawn_projectile(start + diag_side * offset, diag_dir, true)
 
-func _spawn_projectile(start: Vector3, direction: Vector3) -> Node3D:
+func _spawn_projectile(start: Vector3, direction: Vector3, is_diagonal: bool = false) -> Node3D:
 	# Check from the body to the muzzle too: a barrel inside a wall cannot
 	# shoot through it. The shooter is excluded from both raycasts.
 	var origin := shooter.global_position + Vector3.UP * (start.y - shooter.global_position.y)
@@ -97,7 +104,12 @@ func _spawn_projectile(start: Vector3, direction: Vector3) -> Node3D:
 	var projectile := projectile_scene.instantiate() as Node3D
 	projectile.direction = direction
 	projectile.shooter = shooter
-	projectile.damage = damage * 2 if randf() < critical_chance else damage
+	var is_crit := randf() < critical_chance
+	var mult := critical_multiplier if is_crit else 1.0
+	var shot_dmg := float(damage) * mult
+	if is_diagonal:
+		shot_dmg *= 0.6
+	projectile.damage = maxi(1, int(round(shot_dmg)))
 	projectile.speed = projectile_speed
 	projectile.max_distance = shot_range
 	projectile.pierces_left = pierce_count

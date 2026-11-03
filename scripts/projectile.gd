@@ -8,10 +8,12 @@ signal impacted(hit: Dictionary)
 
 var direction := Vector3.FORWARD
 var shooter: CharacterBody3D
+var base_damage: int = 0
 var _travelled: float = 0.0
 var _spent: bool = false
 var pierces_left: int = 0
 var bounces_left: int = 0
+var _pierce_hits: int = 0
 var _hit_bodies: Array[RID] = []
 
 @onready var sweep: ShapeCast3D = $Sweep
@@ -57,6 +59,8 @@ func impact(hit: Dictionary) -> void:
 			return
 		_hit_bodies.append(body_rid)
 		sweep.add_exception_rid(body_rid)
+		if base_damage <= 0:
+			base_damage = damage
 		body.take_damage(damage)
 	impacted.emit(hit)
 	if is_instance_valid(body) and body.has_method("take_damage"):
@@ -65,6 +69,11 @@ func impact(hit: Dictionary) -> void:
 			return
 		if pierces_left > 0:
 			pierces_left -= 1
+			_pierce_hits += 1
+			if _pierce_hits == 1:
+				damage = maxi(1, int(round(base_damage * 0.7)))
+			else:
+				damage = maxi(1, int(round(base_damage * 0.5)))
 			return
 	_spent = true
 	queue_free()
