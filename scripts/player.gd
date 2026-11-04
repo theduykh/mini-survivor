@@ -36,9 +36,16 @@ var _armed_clips: Dictionary = {}
 var current_target: CharacterBody3D
 var _aim_timer: float = 0.0
 
+var _player_materials: Array[StandardMaterial3D] = []
+var _hit_tween: Tween
+var _ring_material: StandardMaterial3D
+
 @onready var visual: Node3D = $Visual
 @onready var model_slot: Node3D = $Visual/ModelSlot
 @onready var placeholder: Node3D = $Visual/Placeholder
+@onready var selection_ring: MeshInstance3D = get_node_or_null("SelectionRing")
+@onready var health_bar: MeshInstance3D = get_node_or_null("HealthBar")
+@onready var health_label: Label3D = get_node_or_null("HealthLabel")
 
 func _ready() -> void:
 	health = max_health
@@ -62,6 +69,60 @@ func _ready() -> void:
 	_setup_animation()
 	_setup_weapon()
 	_update_animation(0.0)
+	_setup_health_bar()
+	_init_hit_feedback()
+	health_changed.connect(func(_c, _m): _update_health_display())
+	_update_health_display()
+
+func _setup_health_bar() -> void:
+	if health_bar != null and health_bar.mesh != null and health_bar.mesh.material != null:
+		health_bar.material_override = health_bar.mesh.material.duplicate()
+
+func _update_health_display() -> void:
+	if health_bar != null:
+		var ratio := clampf(float(health) / float(maxi(1, max_health)), 0.0, 1.0)
+		var mat := health_bar.material_override as ShaderMaterial
+		if mat == null and health_bar.mesh != null:
+			mat = health_bar.mesh.material as ShaderMaterial
+		if mat != null:
+			mat.set_shader_parameter("health_ratio", ratio)
+		health_bar.visible = health > 0
+	if health_label != null:
+		health_label.text = "%d / %d" % [health, max_health]
+		health_label.visible = health > 0
+
+func _init_hit_feedback() -> void:
+	_player_materials.clear()
+	for mesh in visual.find_children("*", "MeshInstance3D", true, false):
+		for surface in range(mesh.mesh.get_surface_count()):
+			var mat = mesh.get_active_material(surface)
+			if mat is StandardMaterial3D:
+				var dup := mat.duplicate() as StandardMaterial3D
+				mesh.set_surface_override_material(surface, dup)
+				_player_materials.append(dup)
+	if selection_ring != null and selection_ring.mesh != null:
+		var r_mat = selection_ring.get_active_material(0)
+		if r_mat is StandardMaterial3D:
+			_ring_material = r_mat.duplicate() as StandardMaterial3D
+			selection_ring.set_surface_override_material(0, _ring_material)
+
+func _play_hit_feedback() -> void:
+	if _hit_tween != null:
+		_hit_tween.kill()
+	_hit_tween = create_tween().set_parallel(true)
+	visual.position = Vector3(randf_range(-0.08, 0.08), 0.05, randf_range(-0.08, 0.08))
+	_hit_tween.tween_property(visual, "position", Vector3.ZERO, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	for mat in _player_materials:
+		mat.emission_enabled = true
+		mat.emission = Color(1.5, 0.2, 0.2)
+		_hit_tween.tween_property(mat, "emission", Color.BLACK, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if _ring_material != null:
+		_ring_material.albedo_color = Color(1.0, 0.25, 0.2)
+		_hit_tween.tween_property(_ring_material, "albedo_color", Color(0.4, 0.95, 0.82), 0.25)
+	_hit_tween.chain().tween_callback(func():
+		for mat in _player_materials:
+			mat.emission_enabled = false
+	)
 
 func _setup_weapon() -> void:
 	if weapon_scene == null:
@@ -215,6 +276,7 @@ func take_damage(amount: int) -> void:
 		return
 	health = maxi(0, health - maxi(0, amount))
 	health_changed.emit(health, max_health)
+	_play_hit_feedback()
 	if health == 0:
 		velocity = Vector3.ZERO
 		current_target = null

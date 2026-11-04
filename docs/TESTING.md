@@ -7,6 +7,7 @@ Chỉ chạy kiểm thử khi sửa logic code. Không chạy toàn bộ test su
 | Thay đổi | Bài test ưu tiên |
 | --- | --- |
 | Wave, spawn, mốc quái, số lượng quái | `tests/wave_smoke.gd` |
+| Quái cận chiến, quái đánh xa, giáo ném | `tests/enemy_types_smoke.gd` |
 | Cân bằng HP, sát thương, navigation, map | `tests/balance_smoke.gd` |
 | Hiệu ứng & chỉ số các nâng cấp | `tests/upgrades_smoke.gd` |
 | Đạn, va chạm, xuyên thấu, tầm bắn | `tests/projectile_smoke.gd` |

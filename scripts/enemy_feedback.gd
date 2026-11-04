@@ -8,19 +8,36 @@ var _hit_tween: Tween
 var _dying: bool = false
 @onready var model: Node3D = get_parent().get_node("Model")
 
-func _ready() -> void:
+func setup_materials() -> void:
+	_materials.clear()
 	for mesh in model.find_children("*", "MeshInstance3D", true, false):
 		for surface in range(mesh.mesh.get_surface_count()):
 			var source := mesh.get_active_material(surface) as StandardMaterial3D
 			var material := ShaderMaterial.new()
 			material.shader = preload("res://shaders/enemy_damage.gdshader")
 			material.set_shader_parameter("hit_flash", 0.0)
-			material.set_shader_parameter("dissolve", 0.0)
+			material.set_shader_parameter("dissolve", dissolve_progress)
+			material.set_shader_parameter("tint_color", Color(1.0, 1.0, 1.0, 0.0))
 			if source != null:
 				material.set_shader_parameter("albedo_texture", source.albedo_texture)
 				material.set_shader_parameter("base_color", source.albedo_color)
 			mesh.set_surface_override_material(surface, material)
 			_materials.append(material)
+
+func register_weapon_mesh(mesh: MeshInstance3D) -> void:
+	for surface in range(mesh.mesh.get_surface_count()):
+		var source := mesh.get_active_material(surface) as StandardMaterial3D
+		var material := ShaderMaterial.new()
+		material.shader = preload("res://shaders/enemy_damage.gdshader")
+		material.set_shader_parameter("hit_flash", 0.0)
+		material.set_shader_parameter("dissolve", dissolve_progress)
+		material.set_shader_parameter("tint_color", Color(1.0, 1.0, 1.0, 0.0))
+		material.set_meta("is_weapon", true)
+		if source != null:
+			material.set_shader_parameter("albedo_texture", source.albedo_texture)
+			material.set_shader_parameter("base_color", source.albedo_color)
+		mesh.set_surface_override_material(surface, material)
+		_materials.append(material)
 
 func hit() -> void:
 	if _dying:

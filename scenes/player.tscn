@@ -2,10 +2,11 @@
 
 [ext_resource type="Script" uid="uid://df5w83yrhvbdu" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://dtouft05sewhp" path="res://assets/models/kenney/mini-characters/Models/GLB format/character-male-c.glb" id="2_g2els"]
+[ext_resource type="Shader" path="res://shaders/health_bar.gdshader" id="3_hp_shader"]
 
 [sub_resource type="CapsuleShape3D" id="BodyShape"]
-radius = 0.35
-height = 1.6
+radius = 0.45
+height = 2.0
 
 [sub_resource type="StandardMaterial3D" id="BodyMaterial"]
 albedo_color = Color(0.16, 0.68, 0.88, 1)
@@ -13,15 +14,15 @@ roughness = 0.85
 
 [sub_resource type="CapsuleMesh" id="BodyMesh"]
 material = SubResource("BodyMaterial")
-radius = 0.35
-height = 1.6
+radius = 0.45
+height = 2.0
 
 [sub_resource type="StandardMaterial3D" id="FaceMaterial"]
 albedo_color = Color(1, 0.78, 0.35, 1)
 
 [sub_resource type="BoxMesh" id="FaceMesh"]
 material = SubResource("FaceMaterial")
-size = Vector3(0.4, 0.18, 0.12)
+size = Vector3(0.48, 0.22, 0.15)
 
 [sub_resource type="StandardMaterial3D" id="RingMaterial"]
 shading_mode = 0
@@ -29,18 +30,27 @@ albedo_color = Color(0.4, 0.95, 0.82, 1)
 
 [sub_resource type="TorusMesh" id="RingMesh"]
 material = SubResource("RingMaterial")
-inner_radius = 0.48
-outer_radius = 0.55
+inner_radius = 0.62
+outer_radius = 0.72
+
+[sub_resource type="ShaderMaterial" id="HBMaterial"]
+render_priority = 10
+shader = ExtResource("3_hp_shader")
+shader_parameter/health_ratio = 1.0
+
+[sub_resource type="QuadMesh" id="HBMesh"]
+material = SubResource("HBMaterial")
+size = Vector2(1.5, 0.16)
 
 [node name="Player" type="CharacterBody3D" unique_id=1652340676]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9370863, -1.638944, -0.03797841)
 floor_snap_length = 0.2
 script = ExtResource("1_player")
 character_model = ExtResource("2_g2els")
-model_scale = 3.0
+model_scale = 3.8
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=12369659]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
 shape = SubResource("BodyShape")
 
 [node name="Visual" type="Node3D" parent="." unique_id=1453786672]
@@ -50,13 +60,29 @@ shape = SubResource("BodyShape")
 [node name="Placeholder" type="Node3D" parent="Visual" unique_id=2102565596]
 
 [node name="Body" type="MeshInstance3D" parent="Visual/Placeholder" unique_id=17049626]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
 mesh = SubResource("BodyMesh")
 
 [node name="Face" type="MeshInstance3D" parent="Visual/Placeholder" unique_id=992960601]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.12, 0.34)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, 0.4)
 mesh = SubResource("FaceMesh")
 
 [node name="SelectionRing" type="MeshInstance3D" parent="." unique_id=951588712]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 mesh = SubResource("RingMesh")
+
+[node name="HealthBar" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.65, 0)
+mesh = SubResource("HBMesh")
+
+[node name="HealthLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9, 0)
+billboard = 1
+no_depth_test = true
+render_priority = 11
+font_size = 32
+pixel_size = 0.0055
+outline_size = 6
+outline_modulate = Color(0, 0, 0, 1)
+modulate = Color(0.9, 0.95, 1, 1)
+text = "100 / 100"

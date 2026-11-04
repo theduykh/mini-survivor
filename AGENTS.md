@@ -17,9 +17,11 @@
   - Tiêu diệt sạch toàn bộ quái của wave sẽ mở menu chọn 1 trong 3 nâng cấp.
   - Chọn nâng cấp xong sẽ tự động bắt đầu wave tiếp theo.
 - **Chiến đấu**:
-  - Nhân vật: 100 HP, tự động ngắm & bắn quái gần nhất trong tầm 28.
+  - Nhân vật: 100 HP, có thanh máu và nhãn HP trên đầu, hiệu ứng flash đỏ và giật người khi trúng đòn, tự động ngắm & bắn quái gần nhất trong tầm 28.
   - Súng: 100 sát thương cơ bản, nhịp bắn 1 phát/giây, tốc độ đạn 18.
-  - Orc: 10 sát thương, nhịp đánh 1 lần/giây (windup 0.25s), tốc độ 2.2.
+  - Quái vật (mỗi wave gồm 85% cận chiến, 15% đánh xa):
+    - Quái cận chiến: model character-human, cầm kiếm `weapon-sword` chém cận chiến, 10 sát thương, nhịp đánh 1 lần/giây (windup 0.25s), tốc độ 2.2, máu cơ bản theo wave.
+    - Quái đánh xa: model character-orc (màu mặc định), cầm `weapon-spear` phóng tấn công từ xa, sát thương 10, máu ít hơn quái cận chiến 50%.
   - Đạn nảy tạm thời ẩn, chỉ giữ Đạn xuyên thấu.
 - **Bản đồ**: Sân phẳng 40×120 (X ±20, Z ±60), không vật cản trong sân; quái spawn ở dải trên cùng (X ±18, Z -27).
 - **Hệ thống**: Hỗ trợ bàn phím/chuột và tay cầm Xbox; phím T chuyển tốc độ 1x/2x; phím Esc mở menu tạm dừng (pause dừng chiến đấu, quái, đạn và spawner).

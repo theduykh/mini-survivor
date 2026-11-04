@@ -15,6 +15,7 @@ var upgrade_levels: Dictionary = {}
 var next_upgrade_kills: int = 20
 var starting_upgrade: bool = false
 var enemy_max_health: int = 100
+var _wave_spawn_types: Array[String] = []
 var upgrades_chosen: int = 0
 var _upgrade_queued: bool = false
 
@@ -141,9 +142,15 @@ func restart_game(to_start: bool = false) -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
-func spawn_enemy(at: Vector3) -> CharacterBody3D:
+func spawn_enemy(at: Vector3, enemy_type: String = "") -> CharacterBody3D:
 	var enemy := preload("res://scenes/enemy.tscn").instantiate() as CharacterBody3D
-	enemy.max_health = enemy_max_health
+	var type := enemy_type
+	if type.is_empty():
+		if wave_spawned < _wave_spawn_types.size():
+			type = _wave_spawn_types[wave_spawned]
+		else:
+			type = "melee"
+	enemy.set_enemy_type(type, enemy_max_health)
 	enemy.player = player
 	enemy.arena = self
 	# Position before entering the physics world: adding at the origin first
@@ -209,8 +216,22 @@ func _start_wave(wave_num: int) -> void:
 		enemy_max_health = 100 + 20 * (current_wave - 1)
 	next_upgrade_kills = wave_start_kills + wave_total_enemies
 	wave_spawned = 0
+	_prepare_wave_spawn_types()
 	_update_spawn_delay()
 	$SpawnTimer.start()
+
+func _prepare_wave_spawn_types() -> void:
+	_wave_spawn_types.clear()
+	var ranged_count := int(round(wave_total_enemies * 0.15))
+	for i in range(wave_total_enemies):
+		_wave_spawn_types.append("melee")
+	if ranged_count > 0:
+		var step := float(wave_total_enemies) / float(ranged_count)
+		for r in range(ranged_count):
+			var idx := mini(wave_total_enemies - 1, int(round((r + 1) * step)) - 1)
+			if idx == 0:
+				idx = 1
+			_wave_spawn_types[idx] = "ranged"
 
 func _show_upgrade() -> void:
 	_upgrade_queued = false
